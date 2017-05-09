@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+	default-lazy-init="true">
+	
+<bean id="dataSource_sunfitlink"  class="com.alibaba.druid.pool.DruidDataSource"  destroy-method="close">  
+	    <property name="url" value="${sunfitlink.jdbc.url}" />
+		<property name="username" value="${sunfitlink.jdbc.username}" />
+		<property name="password" value="${sunfitlink.jdbc.password}" />
+		<property name="initialSize" value="${sunfitlink.initialSize}" />
+		<property name="maxActive" value="${sunfitlink.maxActive}" />
+		<property name="minIdle" value="${sunfitlink.minIdle}" />
+		<property name="maxWait" value="${sunfitlink.maxWait}" />
+		<property name="validationQuery" value="${sunfitlink.validationQuery}" />
+		<property name="testOnBorrow" value="false" />	
+		<property name="testOnReturn" value="false" />
+		<property name="testWhileIdle" value="true" />
+		<property name="timeBetweenEvictionRunsMillis" value="${sunfitlink.timeBetweenEvictionRunsMillis}" />
+		<property name="minEvictableIdleTimeMillis" value="${sunfitlink.minEvictableIdleTimeMillis}" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="${sunfitlink.removeAbandonedTimeout}" />
+		<property name="logAbandoned" value="true" />
+		<property name="filters" value="stat" /> 
+		 
+	</bean> 
+
+</beans>

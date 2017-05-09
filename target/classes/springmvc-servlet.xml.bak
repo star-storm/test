@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	   http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+	   http://www.springframework.org/schema/context 
+	   http://www.springframework.org/schema/context/spring-context-4.1.xsd
+	   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+	   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+	   http://www.springframework.org/schema/mvc
+	   http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd 
+	   http://www.springframework.org/schema/cache
+	   http://www.springframework.org/schema/cache/spring-cache-4.1.xsd
+	   http://cxf.apache.org/jaxws 
+       http://cxf.apache.org/schemas/jaxws.xsd">
+
+	<context:component-scan base-package="com.liuliangqianbao">
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<aop:aspectj-autoproxy />	
+	
+	<mvc:annotation-driven >
+		<mvc:message-converters>
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+              <property name="supportedMediaTypes">
+                  <list>
+                      <value>text/html;charset=UTF-8</value>
+                  </list>
+              </property>
+          </bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+	
+	<!-- spring国际化资源文件绑定器 -->  
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">  
+		<property name="basenames">  
+			<list>  
+				<value>/messages/messages</value>  
+			</list>  
+		</property>  
+	</bean>   
+	<!-- Handles serving up static resources -->
+	<mvc:resources mapping="/static/**" location="/,/static/" />
+	<mvc:resources mapping="/plugins/**" location="/,/plugins/" />
+	<mvc:interceptors>
+		<!-- Changes the locale when a 'locale' request parameter is sent; e.g. /?locale=de -->
+		<!-- <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" /> -->
+		<!-- 为controller提供一个preparable接口 -->
+		<bean class="com.liuliangqianbao.query.common.interceptor.PreparableInterceptor" />
+	</mvc:interceptors>
+    
+	<!-- freemarker start -->	
+	<bean id="freemarkerStaticModelsProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean"> 
+        <property name="location" value="classpath:freemarker.properties" /> 
+    </bean>
+    <bean id="freemarkerStaticModels" class="com.liuliangqianbao.query.common.freemarker.FreemarkerStaticModels">
+        <property name="staticModels" ref="freemarkerStaticModelsProps"/>
+    </bean>
+    <!-- freemarker Variable -->
+	<bean id="blockDirective" class="com.liuliangqianbao.query.common.freemarker.BlockDirective"/>
+	<bean id="extendsDirective" class="com.liuliangqianbao.query.common.freemarker.ExtendsDirective"/>
+	<bean id="overrideDirective" class="com.liuliangqianbao.query.common.freemarker.OverrideDirective"/>
+	<bean id="superDirective" class="com.liuliangqianbao.query.common.freemarker.SuperDirective"/>
+	<!-- 自定义安全标签 -->
+	<bean id="securityDirective" class="com.liuliangqianbao.query.security.tag.TrafficSecurityDirective"/>
+	<bean id="codeMapDirective" class="com.liuliangqianbao.query.directive.CodeMapDirective"/>
+	<!-- Freemarker Variable end -->
+	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<!-- 指定FreeMarker模板文件目录 -->
+		<property name="templateLoaderPath" value="/WEB-INF/views/"/>
+		<!-- 详细请参见freemarker.template.Configuration.setSetting方法解释  -->
+		<property name="freemarkerSettings">
+            <props>
+				<!-- 更新时间,单位秒，开发模式可以设置为5，生成模式请设置为0或较长的间隔  -->
+                <prop key="template_update_delay">5</prop>
+                <prop key="default_encoding">UTF-8</prop>
+                <prop key="number_format">#.##</prop>
+                <prop key="locale">zh_CN</prop>
+                <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+                <prop key="classic_compatible">true</prop>
+                <prop key="template_exception_handler">ignore</prop>
+                <!-- 以逗号分隔 -->
+                <prop key="auto_import">/macros/traffic_macros.ftl as ps, /macros/spring.ftl as sp</prop>
+            </props>
+        </property>
+        <property name="freemarkerVariables">
+			<map>
+                <entry key="block" value-ref="blockDirective"></entry>
+				<entry key="extends" value-ref="extendsDirective"></entry>
+                <entry key="override" value-ref="overrideDirective"></entry>
+                <entry key="super" value-ref="superDirective"></entry>
+				<entry key="security" value-ref="securityDirective"></entry>
+				<entry key="codeMap" value-ref="codeMapDirective"></entry>
+				</map>
+		</property>
+	</bean>
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView" />
+		<property name="cache" value="true" />
+        <property name="prefix" value="" />
+        <property name="suffix" value=".ftl" />
+        <property name="requestContextAttribute" value="rc"></property>
+        <property name="contentType" value="text/html;charset=UTF-8"></property>
+        <property name="exposeRequestAttributes" value="true" />
+ 		<property name="exposeSessionAttributes" value="true" />
+ 		<property name="allowSessionOverride" value="true" />
+ 		<property name="allowRequestOverride" value="true" />
+        <!-- 开启Spring 对 FreeMarker 宏命令的支持  -->  
+        <property name="exposeSpringMacroHelpers" value="true"/>
+        <property name="attributesMap" ref="freemarkerStaticModels"/>
+	</bean>
+	<!-- freemarker end -->	
+	
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8"></property>
+		<property name="maxUploadSize" value="52428800"></property>
+		<property name="maxInMemorySize" value="4096"></property>
+	</bean>
+
+</beans>

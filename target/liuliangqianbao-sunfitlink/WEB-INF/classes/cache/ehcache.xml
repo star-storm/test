@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="gbk"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false">  
+ <diskStore path="java.io.tmpdir" />  
+ <defaultCache eternal="false"   
+   maxElementsInMemory="1000"  
+   overflowToDisk="false"   
+   diskPersistent="false"   
+   timeToIdleSeconds="0"  
+   timeToLiveSeconds="600"   
+   memoryStoreEvictionPolicy="LRU" />  
+ <cache name="trafficCache" 
+	     maxElementsInMemory="10000" 
+	     eternal="false"
+		 overflowToDisk="true" 
+		 timeToIdleSeconds="1800" 
+		 timeToLiveSeconds="3600"
+		 memoryStoreEvictionPolicy="LFU" />
+</ehcache>

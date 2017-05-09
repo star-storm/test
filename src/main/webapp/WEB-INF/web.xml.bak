@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
+	version="2.5">
+	
+  <display-name>liuliangqianbao-query</display-name>
+  <description>liuliangqianbao-query Application</description>
+  
+  <context-param>
+    <param-name>webAppRootKey</param-name>
+    <param-value>liuliangqianbao-query.root</param-value>
+  </context-param>
+  
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:/applicationContext.xml</param-value>
+  </context-param>
+  
+	<!-- Start [Spring Context listener] -->
+	<listener>
+    	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<!-- End [Spring Context listener] -->
+	<!-- 自定义Listener配置begin -->
+    <listener>
+		<listener-class>
+			 com.liuliangqianbao.query.listener.EnergyApplicationContextListener
+	</listener-class>
+   </listener>
+   	<!-- Druid,监控数据库,以及WEB访问连接信息 -->
+	<filter>
+		<filter-name>DruidWebStatFilter</filter-name>
+		<filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
+		<init-param>
+			<param-name>exclusions</param-name>
+			<param-value>*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*</param-value>
+		</init-param>
+		<init-param>
+			<param-name>sessionStatMaxCount</param-name>
+			<param-value>1000</param-value>
+		</init-param>
+		<init-param>
+	        <param-name>sessionStatEnable</param-name>
+	        <param-value>false</param-value>
+	    </init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>DruidWebStatFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<servlet>
+		<servlet-name>DruidStatView</servlet-name>
+		<servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+		<init-param>
+			<!-- 允许清空统计数据 -->
+			<param-name>resetEnable</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<!-- 用户名 -->
+			<param-name>loginUsername</param-name>
+			<param-value>dlzxDataSource</param-value>
+		</init-param>
+		<init-param>
+			<!-- 密码 -->
+			<param-name>loginPassword</param-name>
+			<param-value>dlzx@druid123!</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DruidStatView</servlet-name>
+		<url-pattern>/druid/*</url-pattern>
+	</servlet-mapping>
+   <!-- 自定义Listener配置 end-->
+	<!-- Start [SpringMVC DispatcherServlet] -->
+	<servlet>
+		<servlet-name>springMvc</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:springmvc-servlet.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>springMvc</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	<!-- End [SpringMVC DispatcherServlet] -->
+	<servlet>
+		<servlet-name>createVfcCode</servlet-name>
+		<servlet-class>com.liuliangqianbao.query.web.common.CreateVfcCode</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>createVfcCode</servlet-name>
+		<url-pattern>/register/createVfcCode</url-pattern>
+	</servlet-mapping>	
+  <!-- *************************************** Start Filter *************************************** -->
+	<!--  
+	<filter>
+		<filter-name>session-upc</filter-name>
+    	<filter-class>
+    		com.liuliangqianbao.query.common.filter.SessionUpcFilter
+    	</filter-class>
+    	<init-param> 
+			<param-name>login</param-name> 
+			<param-value>login.jsp</param-value>
+		</init-param>
+ 	 </filter>
+	<filter-mapping>
+	    <filter-name>session-upc</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping> 
+  	-->
+	<!-- Start [Encoding Configuration] -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<!--End [Encoding Configuration] -->
+	
+	<!--Start Login Filter -->
+ 	<filter>
+		<filter-name>loginFilter</filter-name>
+		<filter-class>
+			com.liuliangqianbao.query.security.filter.DelegatingFilterProxy
+		</filter-class>
+		<init-param>
+			<param-name>excludes</param-name>
+			<param-value>
+				*.js,*.css,*.jpg,*.png,*.gif,
+				/403,/404,/500,
+				/setProvince,/getProvince,/getBpic,
+				/login,/to_login,/register*,/checkLogin,/superLogin,/padService*
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>rewrites</param-name>
+			<param-value>
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>filters</param-name>
+			<param-value>
+			</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>loginFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>  
+	<!--End Login Filter -->
+	
+	<!--Start Access Control Filter -->
+	<!-- <filter>
+		<filter-name>accessControlFilter</filter-name>
+		<filter-class>
+			com.liuliangqianbao.query.security.filter.DelegatingFilterProxy
+		</filter-class>
+		<init-param>
+			<param-name>excludes</param-name>
+			<param-value>
+				*.js,*.css,*.jpg,*.png,*.gif,
+				/setProvince,/getProvince,/getBpic,
+				/login,/register*,/checkLogin
+			</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>accessControlFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping> -->
+	<!--End Access Control Filter -->
+	<!-- *************************************** End Filter *************************************** -->
+
+	
+     
+	<!-- 默认主页配置 -->
+	<welcome-file-list>
+		<welcome-file>login.ftl</welcome-file>
+	</welcome-file-list>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/403</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/404</location>
+	</error-page>
+</web-app>
